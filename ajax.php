@@ -1,0 +1,99 @@
+<?PHP
+session_start();
+$level=$_SESSION["level"];
+$record=$_SESSION["record"];
+$step=$_SESSION["step"];
+$errstep=$_SESSION["errstep"];
+$ec=count($errstep);
+$now=$record[$step];
+echo"1*";
+if(isset($_GET["action"]))
+{
+	$ac=$_GET["action"];
+	if($ac==1)
+	{
+		$check=true;
+		for($i=1;$i<=$level;$i++)
+		{
+			if($now[$i]!=3)
+			{
+				$check=false;
+			}
+			echo $now[$i]."*";
+		}
+		if($check)
+		{
+			echo"1*";
+		}
+		else
+		{
+			echo"2*";
+		}
+	}
+	if($ac==2)
+	{
+		$_SESSION["step"]=$step-1;
+		for($i=1;$i<$ec-1;$i++)
+		{
+			if($_SESSION["step"]==$errstep[$i])
+			{
+				$_SESSION["step"]=$_SESSION["step"]-1;
+				unset($_SESSION["errstep"][$i]);
+			}
+		}
+		echo"1*";
+	}
+	if($ac==3)
+	{
+		$nows=$_GET["step"];
+		$check=true;
+		$nt=$_SESSION["time"][$nows];
+		$nxt=isset($_SESSION["time"][$nows+1]) ? $_SESSION["time"][$nows+1] : $nt;
+		$to=$nxt-$nt;
+		for($i=1;$i<=$level;$i++)
+		{
+			echo $record[$nows][$i]."*";
+		}
+		if(in_array($nows,$errstep))
+		{
+			echo"1*";
+		}
+		else
+		{
+			echo"2*";
+		}
+		echo"$to*";
+	}
+}
+else if(isset($_GET["brickId"]) && isset($_GET["toStackId"]) && isset($_GET["fromStackId"]))
+{
+	$bid=$_GET["brickId"];
+	$f=$_GET["fromStackId"];
+	$t=$_GET["toStackId"];
+	$check=true;
+	if($f>3 || $f<1 || $t>3 || $t<1 || $bid>$level || $bid<1)
+	{
+		$check=false;
+	}
+	for($i=1;$i<=$level;$i++)
+	{
+		if($now[$i]==$t && $i<=$bid)
+		{
+			$check=false;
+		}
+	}
+	$_SESSION["step"]=$step+1;
+	$_SESSION["record"][$step+1]=$now;
+	$_SESSION["time"][$step+1]=time();
+	if($check)
+	{
+		$_SESSION["record"][$step+1][$bid]=$t;
+		echo"1*";
+	}
+	else
+	{
+		$_SESSION["errstep"][$ec]=$step+1;
+		echo"2*";
+	}
+}
+?>
